@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  cms:
+    build:
+      context: ./apps/cms
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    environment:
+      - JOOMLA_DB_HOST=cms-mysql
+      - JOOMLA_DB_USER=root
+      - JOOMLA_DB_PASSWORD=password
+      - JOOMLA_DB_NAME=joomla
+    volumes:
+      - cms-data:/var/www/html
+    depends_on:
+      - cms-mysql
+  cms-mysql:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=joomla
+    volumes:
+      - mysql-data:/var/lib/mysql
+volumes:
+  cms-data:
+  mysql-data:

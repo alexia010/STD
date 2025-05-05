@@ -1,0 +1,280 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: proiect
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: standard
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cms
+  namespace: proiect
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cms
+  template:
+    metadata:
+      labels:
+        app: cms
+    spec:
+      containers:
+        - name: cms
+          image: myregistry/cms:latest
+          ports:
+            - containerPort: 80
+          env:
+            - name: JOOMLA_DB_HOST
+              value: cms-mysql
+            - name: JOOMLA_DB_USER
+              value: root
+            - name: JOOMLA_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: mysql-root-password
+            - name: JOOMLA_DB_NAME
+              value: joomla
+          volumeMounts:
+            - name: cms-storage
+              mountPath: /var/www/html
+      volumes:
+        - name: cms-storage
+          persistentVolumeClaim:
+            claimName: cms-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cms
+  namespace: proiect
+spec:
+  selector:
+    app: cms
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cms-pvc
+  namespace: proiect
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: standard
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cms-mysql
+  namespace: proiect
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cms-mysql
+  template:
+    metadata:
+      labels:
+        app: cms-mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: mysql-root-password
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: cms-mysql-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cms-mysql
+  namespace: proiect
+spec:
+  selector:
+    app: cms-mysql
+  ports:
+    - port: 3306
+      targetPort: 3306
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cms-mysql-pvc
+  namespace: proiect
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: standard
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-backend
+  namespace: proiect
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat-backend
+  template:
+    metadata:
+      labels:
+        app: chat-backend
+    spec:
+      containers:
+        - name: chat-backend
+          image: myregistry/chat-backend:latest
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-backend
+  namespace: proiect
+spec:
+  selector:
+    app: chat-backend
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-frontend
+  namespace: proiect
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat-frontend
+  template:
+    metadata:
+      labels:
+        app: chat-frontend
+    spec:
+      containers:
+        - name: chat-frontend
+          image: myregistry/chat-frontend:latest
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-frontend
+  namespace: proiect
+spec:
+  selector:
+    app: chat-frontend
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-frontend
+  namespace: proiect
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-frontend
+  template:
+    metadata:
+      labels:
+        app: ai-frontend
+    spec:
+      containers:
+        - name: ai-frontend
+          image: myregistry/ai-frontend:latest
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-frontend
+  namespace: proiect
+spec:
+  selector:
+    app: ai-frontend
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cms-config
+  namespace: proiect
+data:
+  joomla-setting: "production"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: chat-config
+  namespace: proiect
+data:
+  chat-setting: "production"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ai-config
+  namespace: proiect
+data:
+  ai-setting: "production"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secrets
+  namespace: proiect
+type: Opaque
+data:
+  mysql-root-password: cGFzc3dvcmQ= # base64: "password"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: azure-secrets
+  namespace: proiect
+type: Opaque
+data:
+  azure-key: YXp1cmVrZXk= # base64: "azurekey"
