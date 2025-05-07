@@ -1,0 +1,56 @@
+<div class="chat-container">
+  <div class="chat-header">
+    <h2>CookFlow Chat</h2>
+    <p class="subtitle">Connect with our cooking community!</p>
+  </div>
+
+  <div *ngIf="!usernameSet" class="username-form">
+    <p>Choose a username to join the chat</p>
+    <div class="input-group">
+      <input 
+        [(ngModel)]="username" 
+        name="username" 
+        placeholder="Your name" 
+        required 
+        (keyup.enter)="setUsername()"
+      />
+    </div>
+    <p class="hint">This name will be displayed with your messages</p>
+    <button type="button" (click)="setUsername()">Join Chat</button>
+  </div>
+
+  <div *ngIf="usernameSet" class="message-list" #scrollContainer>
+    <div *ngIf="messages.length === 0" class="empty-state">
+      No messages yet. Start the conversation!
+    </div>
+    
+    <div *ngFor="let message of messages" 
+         class="message" 
+         [ngClass]="message.username === username ? 'sent' : 'received'">
+      <div class="message-header">
+        <span class="username">{{ message.username }}</span>
+      </div>
+      <div class="message-bubble">
+        <p class="message-text">{{ message.message }}</p>
+      </div>
+      <div class="timestamp">{{ formatTime(message.timestamp) }}</div>
+    </div>
+  </div>
+
+  <div *ngIf="usernameSet" class="chat-input">
+    <div class="chat-form">
+      <div class="input-group">
+        <input 
+          [(ngModel)]="message" 
+          name="message" 
+          placeholder="Type your message..." 
+          required 
+          (keyup.enter)="sendMessage()"
+        />
+      </div>
+      <button type="submit" (click)="sendMessage()">
+        Send
+      </button>
+    </div>
+  </div>
+</div>

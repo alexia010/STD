@@ -1,54 +1,89 @@
 # version: '3.8'
+
 # services:
+
 #   cms:
 #     build:
 #       context: ./apps/cms
 #       dockerfile: Dockerfile
+
 #     ports:
 #       - "8080:80"
+#       #port host:post container
+
 #     environment:
 #       - JOOMLA_DB_HOST=cms-mysql
 #       - JOOMLA_DB_USER=root
-#       - JOOMLA_DB_PASSWORD=password
+#       - JOOMLA_DB_PASSWORD=password1234
 #       - JOOMLA_DB_NAME=joomla
+
+#     # variabile de mediu necesare pt conexiune la baza de date 
 #     volumes:
-#       - cms-data:/var/www/html
+#       - ./apps/cms/data:/var/www/html
 #     depends_on:
 #       - cms-mysql
+
 #   cms-mysql:
 #     image: mysql:8.0
 #     environment:
-#       - MYSQL_ROOT_PASSWORD=password
+#       - MYSQL_ROOT_PASSWORD=password1234
 #       - MYSQL_DATABASE=joomla
 #     volumes:
-#       - mysql-data:/var/lib/mysql
-# volumes:
-#   cms-data:
-#   mysql-data:
+#       - ./apps/cms/mysql-data:/var/lib/mysql
 
-# docker/docker-compose.yml
 version: '3.8'
+
 services:
-  cms:
+  # Backend de chat (Go + Nginx)
+  chat-backend:
     build:
-      context: ./apps/cms
+      context: ./apps/chat/backend
       dockerfile: Dockerfile
     ports:
-      - "8080:80"
+      - "88:88"
     environment:
-      - JOOMLA_DB_HOST=cms-mysql
-      - JOOMLA_DB_USER=root
-      - JOOMLA_DB_PASSWORD=password
-      - JOOMLA_DB_NAME=joomla
-    volumes:
-      - ../apps/cms/data:/var/www/html
+      - DB_HOST=chat-mysql
+      - DB_USER=chatuser
+      - DB_PASSWORD=chatpassword
+      - DB_NAME=chatdb
+      - PORT=8080
     depends_on:
-      - cms-mysql
+      - chat-mysql
+    networks:
+      - chat-network
 
-  cms-mysql:
+  # Frontend de chat (Angular)
+  chat-frontend:
+    build:
+      context: ./apps/chat/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "90:90"
+    networks:
+      - chat-network
+    depends_on:
+      - chat-backend
+
+  # Baza de date MySQL pentru chat
+  chat-mysql:
     image: mysql:8.0
     environment:
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_DATABASE=joomla
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=chatdb
+      - MYSQL_USER=chatuser
+      - MYSQL_PASSWORD=chatpassword
     volumes:
-      - ../apps/cms/mysql-data:/var/lib/mysql
+      # Volum pentru persistența datelor MySQL
+      - chat-mysql-data:/var/lib/mysql
+    networks:
+      - chat-network
+
+# Rețea pentru comunicarea între servicii
+networks:
+  chat-network:
+    driver: bridge
+
+# Volume pentru persistența datelor
+volumes:
+  chat-mysql-data:
+    driver: local
