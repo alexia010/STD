@@ -1,89 +1,156 @@
+# # # version: '3.8'
+
+# # # services:
+
+# # #   cms:
+# # #     build:
+# # #       context: ./apps/cms
+# # #       dockerfile: Dockerfile
+
+# # #     ports:
+# # #       - "8080:80"
+# # #       #port host:post container
+
+# # #     environment:
+# # #       - JOOMLA_DB_HOST=cms-mysql
+# # #       - JOOMLA_DB_USER=root
+# # #       - JOOMLA_DB_PASSWORD=password1234
+# # #       - JOOMLA_DB_NAME=joomla
+
+# # #     # variabile de mediu necesare pt conexiune la baza de date 
+# # #     volumes:
+# # #       - ./apps/cms/data:/var/www/html
+# # #     depends_on:
+# # #       - cms-mysql
+
+# # #   cms-mysql:
+# # #     image: mysql:8.0
+# # #     environment:
+# # #       - MYSQL_ROOT_PASSWORD=password1234
+# # #       - MYSQL_DATABASE=joomla
+# # #     volumes:
+# # #       - ./apps/cms/mysql-data:/var/lib/mysql
+
+# # version: '3.8'
+
+# # services:
+# #   # Backend de chat (Go + Nginx)
+# #   chat-backend:
+# #     build:
+# #       context: ./apps/chat/backend
+# #       dockerfile: Dockerfile
+# #     ports:
+# #       - "88:88"
+# #     environment:
+# #       - DB_HOST=chat-mysql
+# #       - DB_USER=chatuser
+# #       - DB_PASSWORD=chatpassword
+# #       - DB_NAME=chatdb
+# #       - PORT=8080
+# #     depends_on:
+# #       - chat-mysql
+# #     networks:
+# #       - chat-network
+
+# #   # Frontend de chat (Angular)
+# #   chat-frontend:
+# #     build:
+# #       context: ./apps/chat/frontend
+# #       dockerfile: Dockerfile
+# #     ports:
+# #       - "90:90"
+# #     networks:
+# #       - chat-network
+# #     depends_on:
+# #       - chat-backend
+
+# #   # Baza de date MySQL pentru chat
+# #   chat-mysql:
+# #     image: mysql:8.0
+# #     environment:
+# #       - MYSQL_ROOT_PASSWORD=rootpassword
+# #       - MYSQL_DATABASE=chatdb
+# #       - MYSQL_USER=chatuser
+# #       - MYSQL_PASSWORD=chatpassword
+# #     volumes:
+# #       # Volum pentru persistența datelor MySQL
+# #       - chat-mysql-data:/var/lib/mysql
+# #     networks:
+# #       - chat-network
+
+# # # Rețea pentru comunicarea între servicii
+# # networks:
+# #   chat-network:
+# #     driver: bridge
+
+# # # Volume pentru persistența datelor
+# # volumes:
+# #   chat-mysql-data:
+# #     driver: local
+
+
 # version: '3.8'
-
 # services:
-
-#   cms:
-#     build:
-#       context: ./apps/cms
-#       dockerfile: Dockerfile
-
+#   mysql:
+#     image: mysql:5.7
+#     environment:
+#       MYSQL_ROOT_PASSWORD: example
+#       MYSQL_DATABASE: chatdb
+#     volumes:
+#       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 #     ports:
-#       - "8080:80"
-#       #port host:post container
-
-#     environment:
-#       - JOOMLA_DB_HOST=cms-mysql
-#       - JOOMLA_DB_USER=root
-#       - JOOMLA_DB_PASSWORD=password1234
-#       - JOOMLA_DB_NAME=joomla
-
-#     # variabile de mediu necesare pt conexiune la baza de date 
-#     volumes:
-#       - ./apps/cms/data:/var/www/html
+#       - "3306:3306"
+#   chat-backend:
+#     build:
+#       context: ./apps/chat/backend
+#       dockerfile: Dockerfile
+#     ports:
+#       - "88:88"
 #     depends_on:
-#       - cms-mysql
-
-#   cms-mysql:
-#     image: mysql:8.0
+#       - mysql
 #     environment:
-#       - MYSQL_ROOT_PASSWORD=password1234
-#       - MYSQL_DATABASE=joomla
-#     volumes:
-#       - ./apps/cms/mysql-data:/var/lib/mysql
-
+#       - MYSQL_HOST=mysql
+#   chat-frontend:
+#     build:
+#       context: ./apps/chat/frontend
+#       dockerfile: Dockerfile
+#     ports:
+#       - "90:90"
 version: '3.8'
 
 services:
-  # Backend de chat (Go + Nginx)
-  chat-backend:
-    build:
-      context: ./apps/chat/backend
-      dockerfile: Dockerfile
+  mysql:
+    image: mysql:8
+    container_name: mysql-chat
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: chat_db
+      MYSQL_USER: chat_user
+      MYSQL_PASSWORD: chat_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d  # Aici ai `chat_db.sql`
+
+  backend:
+    build: ./apps/chat/backend
+    container_name: chat-backend
     ports:
       - "88:88"
     environment:
-      - DB_HOST=chat-mysql
-      - DB_USER=chatuser
-      - DB_PASSWORD=chatpassword
-      - DB_NAME=chatdb
-      - PORT=8080
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: chat_user
+      DB_PASS: chat_pass
+      DB_NAME: chat_db
     depends_on:
-      - chat-mysql
-    networks:
-      - chat-network
+      - mysql
 
-  # Frontend de chat (Angular)
-  chat-frontend:
-    build:
-      context: ./apps/chat/frontend
-      dockerfile: Dockerfile
+  frontend:
+    build: ./apps/chat/frontend
+    container_name: chat-frontend
     ports:
       - "90:90"
-    networks:
-      - chat-network
     depends_on:
-      - chat-backend
-
-  # Baza de date MySQL pentru chat
-  chat-mysql:
-    image: mysql:8.0
-    environment:
-      - MYSQL_ROOT_PASSWORD=rootpassword
-      - MYSQL_DATABASE=chatdb
-      - MYSQL_USER=chatuser
-      - MYSQL_PASSWORD=chatpassword
-    volumes:
-      # Volum pentru persistența datelor MySQL
-      - chat-mysql-data:/var/lib/mysql
-    networks:
-      - chat-network
-
-# Rețea pentru comunicarea între servicii
-networks:
-  chat-network:
-    driver: bridge
-
-# Volume pentru persistența datelor
-volumes:
-  chat-mysql-data:
-    driver: local
+      - backend
