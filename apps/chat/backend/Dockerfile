@@ -35,7 +35,7 @@ RUN go build -o chat-backend
 
 # Imagine finală cu Debian
 FROM debian:bookworm-slim
-RUN apt-get update && apt-get install -y ca-certificates nginx && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y ca-certificates nginx dnsutils iputils-ping curl && rm -rf /var/lib/apt/lists/*
 
 # Copiază binarul Go
 COPY --from=builder /app/chat-backend /usr/local/bin/chat-backend
@@ -43,8 +43,20 @@ COPY --from=builder /app/chat-backend /usr/local/bin/chat-backend
 # Copiază configurația Nginx
 COPY nginx.conf /etc/nginx/nginx.conf
 
+# Creează un script de startup
+RUN echo '#!/bin/sh\n\
+echo "Environment variables:"\n\
+env | grep DB_\n\
+echo "\nDNS resolution test:"\n\
+nslookup chat-mysql\n\
+echo "\nPing test:"\n\
+ping -c 1 chat-mysql\n\
+echo "\nStarting services..."\n\
+nginx && exec /usr/local/bin/chat-backend' > /start.sh && \
+chmod +x /start.sh
+
 # Expune portul 88
 EXPOSE 88
 
-# Punct de intrare care pornește Nginx în background și apoi aplicația Go
-ENTRYPOINT ["sh", "-c", "nginx && exec /usr/local/bin/chat-backend"]
+# Folosește scriptul de startup
+ENTRYPOINT ["/start.sh"]
