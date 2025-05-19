@@ -42,9 +42,11 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.username = savedUsername;
       this.usernameSet = true;
       this.connectWebSocket();
+   
     }
     
     this.loadMessages();
+    
   }
 
   ngOnDestroy() {
@@ -65,6 +67,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.usernameSet = true;
       localStorage.setItem('chat-username', this.username);
       this.connectWebSocket();
+      this.loadMessages();
     }
   }
 
