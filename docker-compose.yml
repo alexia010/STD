@@ -1,51 +1,157 @@
-# # # !! BUN
+# # ## BUN CHAT 
+# # # version: '3.8'
+
+# # # services:
+# # #   chat-mysql:
+# # #     image: mysql:8
+# # #     container_name: chat-mysql
+# # #     restart: always
+# # #     environment:
+# # #       MYSQL_ROOT_PASSWORD: rootpass
+# # #       MYSQL_DATABASE: chat_db
+# # #       MYSQL_USER: chat_user
+# # #       MYSQL_PASSWORD: chat_pass
+# # #     ports:
+# # #       - "3306:3306"
+# # #     volumes:
+# # #       - ./init:/docker-entrypoint-initdb.d
+# # #       - chat-mysql-data:/var/lib/mysql
+# # #     networks:
+# # #       - app-network
+
+# # #   backend:
+# # #     build: ./apps/chat/backend
+# # #     container_name: chat-backend
+# # #     ports:
+# # #       - "88:88"
+# # #     environment:
+# # #       DB_HOST: chat-mysql
+# # #       DB_PORT: 3306
+# # #       DB_USER: chat_user
+# # #       DB_PASS: chat_pass
+# # #       DB_NAME: chat_db
+# # #     depends_on:
+# # #       - chat-mysql
+# # #     networks:
+# # #       - app-network
+
+# # #   frontend:
+# # #     build: ./apps/chat/frontend
+# # #     container_name: chat-frontend
+# # #     ports:
+# # #       - "90:90"
+# # #     depends_on:
+# # #       - backend
+# # #     networks:
+# # #       - app-network
+
+# # # volumes:
+# # #   chat-mysql-data:
+
+# # # networks:
+# # #   app-network:
+# # #     driver: bridge
+
+# # version: '3.8'
+
+# # services:
+# #   # Baza de date pentru chat
+# #   chat-mysql:
+# #     image: mysql:8
+# #     container_name: chat-mysql
+# #     restart: always
+# #     environment:
+# #       MYSQL_ROOT_PASSWORD: rootpass
+# #       MYSQL_DATABASE: chat_db
+# #       MYSQL_USER: chat_user
+# #       MYSQL_PASSWORD: chat_pass
+# #     ports:
+# #       - "3306:3306"
+# #     volumes:
+# #       - ./init:/docker-entrypoint-initdb.d
+# #       - chat-mysql-data:/var/lib/mysql
+# #     networks:
+# #       - app-network
+
+# #   # Baza de date pentru Joomla
+# #   joomla-mysql:
+# #     image: mysql:8
+# #     container_name: joomla-mysql
+# #     restart: always
+# #     environment:
+# #       MYSQL_ROOT_PASSWORD: rootpass
+# #       MYSQL_DATABASE: joomla_db
+# #       MYSQL_USER: joomla_user
+# #       MYSQL_PASSWORD: joomla_pass
+# #     ports:
+# #       - "3307:3306"  # Port diferit pentru a evita conflictul cu chat-mysql
+# #     volumes:
+# #       - joomla-mysql-data:/var/lib/mysql
+# #     networks:
+# #       - app-network
+
+# #   # Backend pentru chat
+# #   backend:
+# #     build: ./apps/chat/backend
+# #     container_name: chat-backend
+# #     ports:
+# #       - "88:88"
+# #     environment:
+# #       DB_HOST: chat-mysql
+# #       DB_PORT: 3306
+# #       DB_USER: chat_user
+# #       DB_PASS: chat_pass
+# #       DB_NAME: chat_db
+# #     depends_on:
+# #       - chat-mysql
+# #     networks:
+# #       - app-network
+
+# #   # Frontend pentru chat
+# #   frontend:
+# #     build: ./apps/chat/frontend
+# #     container_name: chat-frontend
+# #     ports:
+# #       - "90:90"
+# #     depends_on:
+# #       - backend
+# #     networks:
+# #       - app-network
+
+# #   # CMS Joomla
+# #   joomla:
+# #     image: joomla:latest
+# #     container_name: joomla
+# #     restart: always
+# #     ports:
+# #       - "80:80"
+# #     environment:
+# #       JOOMLA_DB_HOST: joomla-mysql
+# #       JOOMLA_DB_USER: joomla_user
+# #       JOOMLA_DB_PASSWORD: joomla_pass
+# #       JOOMLA_DB_NAME: joomla_db
+# #     depends_on:
+# #       - joomla-mysql
+# #     volumes:
+# #       - joomla-data:/var/www/html
+# #     networks:
+# #       - app-network
+
+# # # Volume-uri pentru persistența datelor
+# # volumes:
+# #   chat-mysql-data:    # Volume pentru baza de date chat
+# #   joomla-mysql-data:  # Volume pentru baza de date Joomla
+# #   joomla-data:        # Volume pentru fișierele Joomla
+
+# # # Rețea pentru comunicarea între containere
+# # networks:
+# #   app-network:
+# #     driver: bridge
+
 # version: '3.8'
 
 # services:
-#   mysql:
-#     image: mysql:8
-#     container_name: chat-mysql
-#     restart: always
-#     environment:
-#       MYSQL_ROOT_PASSWORD: rootpass
-#       MYSQL_DATABASE: chat_db
-#       MYSQL_USER: chat_user
-#       MYSQL_PASSWORD: chat_pass
-#     ports:
-#       - "3306:3306"
-#     volumes:
-#       - ./init:/docker-entrypoint-initdb.d  # Aici ai `chat_db.sql`
-#       - chat-mysql-data:/var/lib/mysql
-
-#   backend:
-#     build: ./apps/chat/backend
-#     container_name: chat-backend
-#     ports:
-#       - "88:88"
-#     environment:
-#       DB_HOST: mysql
-#       DB_PORT: 3306
-#       DB_USER: chat_user
-#       DB_PASS: chat_pass
-#       DB_NAME: chat_db
-#     depends_on:
-#       - mysql
-
-#   frontend:
-#     build: ./apps/chat/frontend
-#     container_name: chat-frontend
-#     ports:
-#       - "90:90"
-#     depends_on:
-#       - backend
-
-# volumes:
-#   chat-mysql-data:
-
-
-# version: '3.8'
-
-# services:
+#   # Baza de date pentru chat
 #   chat-mysql:
 #     image: mysql:8
 #     container_name: chat-mysql
@@ -56,11 +162,14 @@
 #       MYSQL_USER: chat_user
 #       MYSQL_PASSWORD: chat_pass
 #     ports:
-#       - "3306:3306"
+#       - "3308:3306"
 #     volumes:
 #       - ./init:/docker-entrypoint-initdb.d
 #       - chat-mysql-data:/var/lib/mysql
+#     networks:
+#       - app-network
 
+#   # Baza de date pentru Joomla
 #   joomla-mysql:
 #     image: mysql:8
 #     container_name: joomla-mysql
@@ -71,11 +180,14 @@
 #       MYSQL_USER: joomla_user
 #       MYSQL_PASSWORD: joomla_pass
 #     ports:
-#       - "3307:3306"  # Port diferit pentru a evita conflictul cu chat-mysql
+#       - "3307:3306"
 #     volumes:
 #       - joomla-mysql-data:/var/lib/mysql
+#     networks:
+#       - app-network
 
-#   backend:
+#   # Backend pentru chat
+#   chat-backend:
 #     build: ./apps/chat/backend
 #     container_name: chat-backend
 #     ports:
@@ -88,21 +200,27 @@
 #       DB_NAME: chat_db
 #     depends_on:
 #       - chat-mysql
+#     networks:
+#       - app-network
 
-#   frontend:
+#   # Frontend pentru chat
+#   chat-frontend:
 #     build: ./apps/chat/frontend
 #     container_name: chat-frontend
 #     ports:
 #       - "90:90"
 #     depends_on:
-#       - backend
+#       - chat-backend
+#     networks:
+#       - app-network
 
+#   # CMS Joomla
 #   joomla:
 #     image: joomla:latest
 #     container_name: joomla
 #     restart: always
 #     ports:
-#       - "80:80"
+#       - "8080:80"
 #     environment:
 #       JOOMLA_DB_HOST: joomla-mysql
 #       JOOMLA_DB_USER: joomla_user
@@ -112,15 +230,102 @@
 #       - joomla-mysql
 #     volumes:
 #       - joomla-data:/var/www/html
+#     networks:
+#       - app-network
+
+#   # Backend pentru IA
+#   ia-backend:
+#     build:
+#       context: ./apps/ia/backend
+#       dockerfile: Dockerfile
+#     ports:
+#       - "3000:3000"
+#     environment:
+#       - PORT=3000
+#       - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING}
+#       - AZURE_STORAGE_CONTAINER_NAME=${AZURE_STORAGE_CONTAINER_NAME}
+#       - AZURE_FORM_RECOGNIZER_ENDPOINT=${AZURE_FORM_RECOGNIZER_ENDPOINT}
+#       - AZURE_FORM_RECOGNIZER_KEY=${AZURE_FORM_RECOGNIZER_KEY}
+#       - AZURE_FORM_RECOGNIZER_MODEL_ID=${AZURE_FORM_RECOGNIZER_MODEL_ID}
+#       - SQL_SERVER=${SQL_SERVER}
+#       - SQL_DATABASE=${SQL_DATABASE}
+#       - SQL_USERNAME=${SQL_USERNAME}
+#       - SQL_PASSWORD=${SQL_PASSWORD}
+#     networks:
+#       - app-network
+
+#   # Frontend pentru IA
+#   ia-frontend:
+#     build:
+#       context: ./apps/ia/frontend
+#       dockerfile: Dockerfile
+#     ports:
+#       - "4200:4200"
+#     depends_on:
+#       - ia-backend
+#     networks:
+#       - app-network
 
 # volumes:
-#   chat-mysql-data:
-#   joomla-mysql-data:
-#   joomla-data:
+#   chat-mysql-data:    # Volume pentru baza de date chat
+#   joomla-mysql-data:  # Volume pentru baza de date Joomla
+#   joomla-data:        # Volume pentru fișierele Joomla
 
+# networks:
+#   app-network:
+#     driver: bridge
+
+
+
+#BUN IA
+# version: '3.8'
+
+# services:
+#   ia-backend:
+#     build: ./apps/ia/backend
+#     container_name: ia-backend
+#     ports:
+#       - "3000:3000"
+#     environment:
+#       - PORT=3000
+#       - FRONTEND_URL=${FRONTEND_URL}
+#       - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING}
+#       - AZURE_STORAGE_CONTAINER_NAME=${AZURE_STORAGE_CONTAINER_NAME}
+#       - AZURE_FORM_RECOGNIZER_ENDPOINT=${AZURE_FORM_RECOGNIZER_ENDPOINT}
+#       - AZURE_FORM_RECOGNIZER_KEY=${AZURE_FORM_RECOGNIZER_KEY}
+#       - AZURE_FORM_RECOGNIZER_MODEL_ID=${AZURE_FORM_RECOGNIZER_MODEL_ID}
+#       - SQL_SERVER=${SQL_SERVER}
+#       - SQL_DATABASE=${SQL_DATABASE}
+#       - SQL_USERNAME=${SQL_USERNAME}
+#       - SQL_PASSWORD=${SQL_PASSWORD}
+#     networks:
+#       - app-network
+
+#   ia-frontend:
+#     build: ./apps/ia/frontend
+#     container_name: ia-frontend
+#     ports:
+#       - "4200:4200"
+#     environment:
+#       - BACKEND_URL=${BACKEND_URL}
+#     depends_on:
+#       - ia-backend
+#     networks:
+#       - app-network
+
+# networks:
+#   app-network:
+#     driver: bridge
+
+# ## SF BUN IA
+
+
+
+# Configurare completă pentru toate serviciile
 version: '3.8'
 
 services:
+  # Baza de date pentru chat
   chat-mysql:
     image: mysql:8
     container_name: chat-mysql
@@ -131,14 +336,32 @@ services:
       MYSQL_USER: chat_user
       MYSQL_PASSWORD: chat_pass
     ports:
-      - "3306:3306"
+      - "3308:3306"
     volumes:
       - ./init:/docker-entrypoint-initdb.d
       - chat-mysql-data:/var/lib/mysql
     networks:
       - app-network
 
-  backend:
+  # Baza de date pentru Joomla
+  joomla-mysql:
+    image: mysql:8
+    container_name: joomla-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: joomla_db
+      MYSQL_USER: joomla_user
+      MYSQL_PASSWORD: joomla_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - joomla-mysql-data:/var/lib/mysql
+    networks:
+      - app-network
+
+  # Backend pentru chat
+  chat-backend:
     build: ./apps/chat/backend
     container_name: chat-backend
     ports:
@@ -154,18 +377,74 @@ services:
     networks:
       - app-network
 
-  frontend:
+  # Frontend pentru chat
+  chat-frontend:
     build: ./apps/chat/frontend
     container_name: chat-frontend
     ports:
       - "90:90"
     depends_on:
-      - backend
+      - chat-backend
+    networks:
+      - app-network
+
+  # CMS Joomla
+  joomla:
+    image: joomla:latest
+    container_name: joomla
+    restart: always
+    ports:
+      - "80:80"
+    environment:
+      JOOMLA_DB_HOST: joomla-mysql
+      JOOMLA_DB_USER: joomla_user
+      JOOMLA_DB_PASSWORD: joomla_pass
+      JOOMLA_DB_NAME: joomla_db
+    depends_on:
+      - joomla-mysql
+    volumes:
+      - joomla-data:/var/www/html
+    networks:
+      - app-network
+
+  # Backend pentru IA
+  ia-backend:
+    build: ./apps/ia/backend
+    container_name: ia-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - FRONTEND_URL=${FRONTEND_URL}
+      - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING}
+      - AZURE_STORAGE_CONTAINER_NAME=${AZURE_STORAGE_CONTAINER_NAME}
+      - AZURE_FORM_RECOGNIZER_ENDPOINT=${AZURE_FORM_RECOGNIZER_ENDPOINT}
+      - AZURE_FORM_RECOGNIZER_KEY=${AZURE_FORM_RECOGNIZER_KEY}
+      - AZURE_FORM_RECOGNIZER_MODEL_ID=${AZURE_FORM_RECOGNIZER_MODEL_ID}
+      - SQL_SERVER=${SQL_SERVER}
+      - SQL_DATABASE=${SQL_DATABASE}
+      - SQL_USERNAME=${SQL_USERNAME}
+      - SQL_PASSWORD=${SQL_PASSWORD}
+    networks:
+      - app-network
+
+  # Frontend pentru IA
+  ia-frontend:
+    build: ./apps/ia/frontend
+    container_name: ia-frontend
+    ports:
+      - "4200:4200"
+    environment:
+      - BACKEND_URL=${BACKEND_URL}
+    depends_on:
+      - ia-backend
     networks:
       - app-network
 
 volumes:
-  chat-mysql-data:
+  chat-mysql-data:    # Volume pentru baza de date chat
+  joomla-mysql-data:  # Volume pentru baza de date Joomla
+  joomla-data:        # Volume pentru fișierele Joomla
 
 networks:
   app-network:

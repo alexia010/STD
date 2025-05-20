@@ -1,0 +1,55 @@
+<!-- src/app/app.component.html -->
+<div class="container">
+  <h1>{{ title }}</h1>
+
+  <!-- File Upload Section -->
+  <div class="upload-section">
+    <div class="upload-box" 
+         (click)="fileInput.click()" 
+         [class.dragover]="isDragover"
+         (dragover)="onDragOver($event)"
+         (dragleave)="onDragLeave($event)"
+         (drop)="onDrop($event)">
+      <input #fileInput type="file" (change)="onFileSelected($event)" style="display: none">
+      <div class="upload-content">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <p>Click to select or drag and drop a file</p>
+        <p class="file-name" *ngIf="selectedFile">{{ selectedFile.name }}</p>
+      </div>
+    </div>
+
+    <button class="upload-button" (click)="uploadFile()" [disabled]="!selectedFile || loading">
+      {{ loading ? 'Processing...' : 'Process Document' }}
+    </button>
+
+    <div class="error-message" *ngIf="error">
+      {{ error }}
+    </div>
+  </div>
+
+  <!-- Processing Result Section -->
+  <div class="result-section" *ngIf="processingResult">
+    <h2>Processing Result</h2>
+    <div class="result-content">
+      <pre>{{ processingResult | json }}</pre>
+    </div>
+  </div>
+
+  <!-- History Section -->
+  <div class="history-section">
+    <h2>Processing History</h2>
+    <div class="history-list">
+      <div class="history-item" *ngFor="let item of history">
+        <div class="history-header">
+          <span class="file-name">{{ item.fileName }}</span>
+          <span class="timestamp">{{ item.uploadTimestamp | date:'medium' }}</span>
+        </div>
+        <div class="history-details">
+          <button class="view-result" (click)="processingResult = item.processingResult">
+            View Result
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

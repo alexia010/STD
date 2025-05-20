@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const multer = require('multer');
 const { BlobServiceClient } = require('@azure/storage-blob');
@@ -9,6 +8,39 @@ const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Validate required environment variables
+const requiredEnvVars = [
+  'AZURE_STORAGE_CONNECTION_STRING',
+  'AZURE_STORAGE_CONTAINER_NAME',
+  'AZURE_FORM_RECOGNIZER_ENDPOINT',
+  'AZURE_FORM_RECOGNIZER_KEY',
+  'AZURE_FORM_RECOGNIZER_MODEL_ID',
+  'SQL_SERVER',
+  'SQL_DATABASE',
+  'SQL_USERNAME',
+  'SQL_PASSWORD'
+];
+
+// Check for missing environment variables
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+if (missingEnvVars.length > 0) {
+  console.error('Missing required environment variables:', missingEnvVars);
+  process.exit(1);
+}
+
+// Log environment variables for debugging (without sensitive data)
+console.log('Environment variables loaded:');
+console.log('PORT:', process.env.PORT);
+console.log('AZURE_STORAGE_CONTAINER_NAME:', process.env.AZURE_STORAGE_CONTAINER_NAME);
+console.log('AZURE_FORM_RECOGNIZER_ENDPOINT:', process.env.AZURE_FORM_RECOGNIZER_ENDPOINT);
+console.log('AZURE_FORM_RECOGNIZER_MODEL_ID:', process.env.AZURE_FORM_RECOGNIZER_MODEL_ID);
+console.log('SQL_SERVER:', process.env.SQL_SERVER);
+console.log('SQL_DATABASE:', process.env.SQL_DATABASE);
+console.log('SQL_USERNAME:', process.env.SQL_USERNAME);
+console.log('AZURE_STORAGE_CONNECTION_STRING:', process.env.AZURE_STORAGE_CONNECTION_STRING ? 'Set' : 'Not set');
+console.log('AZURE_FORM_RECOGNIZER_KEY:', process.env.AZURE_FORM_RECOGNIZER_KEY ? 'Set' : 'Not set');
+console.log('SQL_PASSWORD:', process.env.SQL_PASSWORD ? 'Set' : 'Not set');
 
 // Global error handler
 process.on('uncaughtException', (error) => {
@@ -21,7 +53,7 @@ process.on('unhandledRejection', (error) => {
 
 // CORS configuration
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
+  res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Access-Control-Allow-Credentials', 'true');
@@ -59,6 +91,7 @@ try {
   console.log('Azure Blob Storage client initialized successfully');
 } catch (error) {
   console.error('Error initializing Azure Blob Storage client:', error);
+  process.exit(1);
 }
 
 // Azure Form Recognizer configuration
@@ -71,6 +104,7 @@ try {
   console.log('Azure Form Recognizer client initialized successfully');
 } catch (error) {
   console.error('Error initializing Azure Form Recognizer client:', error);
+  process.exit(1);
 }
 
 // SQL Database configuration
@@ -242,7 +276,7 @@ async function startServer() {
     
     app.listen(port, () => {
       console.log(`Server running on port ${port}`);
-      console.log(`CORS enabled for http://localhost:4200`);
+      console.log(`CORS enabled for ${process.env.FRONTEND_URL}`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);

@@ -61,3 +61,26 @@ Personalizare
 Editează apps/cms/Dockerfile pentru alte teme/extensii.
 Ajustează all-in-one.yaml pentru Kubernetes.
 
+
+
+backed:
+npm init 
+npm install express cors multer @azure/storage-blob @azure/ai-form-recognizer uuid sqlite sqlite3 dotenv
+npm install --save-dev nodemon
+
+
+sql server
+dbadmin
+parola123!
+
+
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='recipes' AND xtype='U')
+CREATE TABLE recipes (
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  fileName NVARCHAR(255) NOT NULL,
+  blobUrl NVARCHAR(1000) NOT NULL,
+  uploadTimestamp DATETIME DEFAULT GETDATE(),
+  status NVARCHAR(50) DEFAULT 'pending',
+  operationId NVARCHAR(255),
+  processingResult NVARCHAR(MAX)  -- Aici stochezi tot textul rezultat din procesare
+)
