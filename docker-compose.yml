@@ -331,10 +331,10 @@ services:
     container_name: chat-mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: chat_db
-      MYSQL_USER: chat_user
-      MYSQL_PASSWORD: chat_pass
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     ports:
       - "3308:3306"
     volumes:
@@ -396,10 +396,10 @@ services:
     ports:
       - "80:80"
     environment:
-      JOOMLA_DB_HOST: joomla-mysql
-      JOOMLA_DB_USER: joomla_user
-      JOOMLA_DB_PASSWORD: joomla_pass
-      JOOMLA_DB_NAME: joomla_db
+      - JOOMLA_DB_HOST=${JOOMLA_DB_HOST}
+      - JOOMLA_DB_USER=${JOOMLA_DB_USER}
+      - JOOMLA_DB_PASSWORD=${JOOMLA_DB_PASSWORD}
+      - JOOMLA_DB_NAME=${JOOMLA_DB_NAME}
     depends_on:
       - joomla-mysql
     volumes:
