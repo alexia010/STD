@@ -42,7 +42,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.username = savedUsername;
       this.usernameSet = true;
       this.connectWebSocket();
-   
     }
     
     this.loadMessages();
@@ -67,15 +66,13 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.usernameSet = true;
       localStorage.setItem('chat-username', this.username);
       this.connectWebSocket();
-      this.loadMessages();
     }
   }
 
   connectWebSocket() {
     // Use window.location to dynamically determine the WebSocket URL
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.hostname;
-    const wsUrl = `${protocol}//${host}:88/ws`;
+    const wsUrl = `${protocol}//74.225.186.15:30001/ws`;
     
     this.ws = new WebSocket(wsUrl);
     
@@ -84,8 +81,16 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewChecked {
     };
     
     this.ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      this.messages.push(message);
+      const data = JSON.parse(event.data);
+      
+      // Verificăm dacă primim un array (istoric) sau un singur mesaj
+      if (Array.isArray(data)) {
+        // Este istoricul mesajelor
+        this.messages = data;
+      } else {
+        // Este un mesaj nou
+        this.messages.push(data);
+      }
       this.shouldScrollToBottom = true;
     };
     
@@ -106,7 +111,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   loadMessages() {
     // Use window.location to dynamically determine the API URL
-    const baseUrl = `${window.location.protocol}//${window.location.hostname}:88`;
+    const baseUrl = `${window.location.protocol}//74.225.186.15:30001`;
     
     this.http.get<ChatMessage[]>(`${baseUrl}/messages`).subscribe({
       next: (data) => {
